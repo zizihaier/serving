@@ -45,7 +45,10 @@ int DeadlineToTimeoutMillis(const gpr_timespec deadline) {
       ToGRPCStatus(predictor_->Predict(run_options, core_, *request, response));
 
   if (!status.ok()) {
-    VLOG(1) << "Predict failed: " << status.error_message();
+    //VLOG(1) << "Predict failed: " << status.error_message();
+  	LOG(INFO) << "Predict failed:" << status.error_message();
+  }else{
+    LOG(INFO) << "Predict succeed!";
   }
   return status;
 }
