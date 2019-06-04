@@ -40,10 +40,12 @@ int DeadlineToTimeoutMillis(const gpr_timespec deadline) {
   tensorflow::RunOptions run_options = tensorflow::RunOptions();
   run_options.set_timeout_in_ms(
       DeadlineToTimeoutMillis(context->raw_deadline()));
-
+  
+  start=clock();
   const ::grpc::Status status =
       ToGRPCStatus(predictor_->Predict(run_options, core_, *request, response));
-
+  double timecost = 1000*((double)clock()-start)/(CLOCKS_PER_SEC);
+  LOG(INFO) << "Predict rt:" << timecost;
   if (!status.ok()) {
     //VLOG(1) << "Predict failed: " << status.error_message();
   	LOG(INFO) << "Predict failed:" << status.error_message();
