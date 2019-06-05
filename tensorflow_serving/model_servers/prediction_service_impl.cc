@@ -31,6 +31,11 @@ int DeadlineToTimeoutMillis(const gpr_timespec deadline) {
       gpr_time_sub(gpr_convert_clock_type(deadline, GPR_CLOCK_MONOTONIC),
                    gpr_now(GPR_CLOCK_MONOTONIC)));
 }
+double elapsed () {
+	    struct timeval tv;
+		gettimeofday (&tv, nullptr);
+		return  tv.tv_sec*1000 + tv.tv_usec * 1e-3;
+}
 
 }  // namespace
 
@@ -41,16 +46,15 @@ int DeadlineToTimeoutMillis(const gpr_timespec deadline) {
   run_options.set_timeout_in_ms(
       DeadlineToTimeoutMillis(context->raw_deadline()));
   
-  clock_t start=clock();
+  double start_time = elapsed();
   const ::grpc::Status status =
       ToGRPCStatus(predictor_->Predict(run_options, core_, *request, response));
-  double timecost = 1000*((double)clock()-start)/(CLOCKS_PER_SEC);
-  LOG(INFO) << "Predict rt:" << timecost;
+  double end_time = elapsed();
   if (!status.ok()) {
     //VLOG(1) << "Predict failed: " << status.error_message();
-  	LOG(INFO) << "Predict failed:" << status.error_message();
+  	LOG(INFO) << "Predict rt:" << (end_time-start_time) << "Predict failed:" << status.error_message();
   }else{
-    LOG(INFO) << "Predict succeed!";
+    LOG(INFO) << "Predict rt:" << (end_time-start_time) << "Predict succeed!";
   }
   return status;
 }
