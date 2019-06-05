@@ -53,9 +53,9 @@ double elapsed () {
   double end_time = elapsed();
   if (!status.ok()) {
     //VLOG(1) << "Predict failed: " << status.error_message();
-  	LOG(INFO) << "Predict rt:" << (end_time-start_time) << "Predict failed:" << status.error_message();
+  	LOG(INFO) << "rt " << (end_time-start_time) << " Predict failed! " << status.error_message();
   }else{
-    LOG(INFO) << "Predict rt:" << (end_time-start_time) << "Predict succeed!";
+    LOG(INFO) << "rt " << (end_time-start_time) << " Predict succeed! ";
   }
   return status;
 }
