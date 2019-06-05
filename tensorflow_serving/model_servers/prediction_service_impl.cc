@@ -20,6 +20,7 @@ limitations under the License.
 #include "tensorflow_serving/servables/tensorflow/get_model_metadata_impl.h"
 #include "tensorflow_serving/servables/tensorflow/multi_inference_helper.h"
 #include "tensorflow_serving/servables/tensorflow/regression_service.h"
+#include <sys/time.h>
 
 namespace tensorflow {
 namespace serving {
@@ -33,7 +34,7 @@ int DeadlineToTimeoutMillis(const gpr_timespec deadline) {
 }
 double elapsed () {
 	    struct timeval tv;
-		gettimeofday (&tv, nullptr);
+		gettimeofday (&tv, NULL);
 		return  tv.tv_sec*1000 + tv.tv_usec * 1e-3;
 }
 
