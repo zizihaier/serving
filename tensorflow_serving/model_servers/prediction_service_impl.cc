@@ -41,7 +41,7 @@ int DeadlineToTimeoutMillis(const gpr_timespec deadline) {
   run_options.set_timeout_in_ms(
       DeadlineToTimeoutMillis(context->raw_deadline()));
   
-  start=clock();
+  clock_t start=clock();
   const ::grpc::Status status =
       ToGRPCStatus(predictor_->Predict(run_options, core_, *request, response));
   double timecost = 1000*((double)clock()-start)/(CLOCKS_PER_SEC);
