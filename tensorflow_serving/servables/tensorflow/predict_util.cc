@@ -29,7 +29,6 @@ limitations under the License.
 #include "tensorflow/core/protobuf/named_tensor.pb.h"
 #include "tensorflow_serving/servables/tensorflow/util.h"
 #include <sys/time.h>
-#include <dynamic_source_router.h>
 
 namespace tensorflow {
 namespace serving {
