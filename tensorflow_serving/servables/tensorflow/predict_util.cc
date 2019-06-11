@@ -28,10 +28,17 @@ limitations under the License.
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/protobuf/named_tensor.pb.h"
 #include "tensorflow_serving/servables/tensorflow/util.h"
+#include <sys/time.h>
+#include <dynamic_source_router.h>
 
 namespace tensorflow {
 namespace serving {
 namespace {
+    double elapsed () {
+      struct timeval tv;
+      gettimeofday (&tv, NULL);
+      return  tv.tv_sec*1000 + tv.tv_usec * 1e-3;
+    }
 
 // Returns the keys in the map as a comma delimited string. Useful for debugging
 // or when returning error messages.
@@ -147,6 +154,7 @@ Status PostProcessPredictionResult(
     const SignatureDef& signature,
     const std::vector<string>& output_tensor_aliases,
     const std::vector<Tensor>& output_tensors, PredictResponse* response) {
+      double start_time = elapsed();
   // Validate and return output.
   if (output_tensors.size() != output_tensor_aliases.size()) {
     return tensorflow::Status(tensorflow::error::UNKNOWN,
@@ -156,6 +164,7 @@ Status PostProcessPredictionResult(
     output_tensors[i].AsProtoField(
         &((*response->mutable_outputs())[output_tensor_aliases[i]]));
   }
+      LOG(INFO) << "postprocess " << (elapsed()-start_time) ;
   return Status::OK();
 }
 
@@ -182,15 +191,18 @@ Status RunPredict(const RunOptions& run_options,
   std::vector<std::pair<string, Tensor>> input_tensors;
   std::vector<string> output_tensor_names;
   std::vector<string> output_tensor_aliases;
+  double start_time = elapsed();
   TF_RETURN_IF_ERROR(PreProcessPrediction(signature, request, &input_tensors,
                                           &output_tensor_names,
                                           &output_tensor_aliases));
+  double pre_time = elapsed();
+  LOG(INFO) << "preprocess " << (pre_time-start_time) ;
   std::vector<Tensor> outputs;
   RunMetadata run_metadata;
   TF_RETURN_IF_ERROR(session->Run(run_options, input_tensors,
                                   output_tensor_names, {}, &outputs,
                                   &run_metadata));
-
+  LOG(INFO) << "sessionrun " << (elapsed()-pre_time) ;
   return PostProcessPredictionResult(signature, output_tensor_aliases, outputs,
                                      response);
 }

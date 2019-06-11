@@ -23,11 +23,17 @@ limitations under the License.
 #include "tensorflow_serving/core/servable_handle.h"
 #include "tensorflow_serving/servables/tensorflow/predict_util.h"
 #include "tensorflow_serving/servables/tensorflow/util.h"
+#include <sys/time.h>
 
 namespace tensorflow {
 namespace serving {
 
 namespace {
+    double elapsed () {
+      struct timeval tv;
+      gettimeofday (&tv, NULL);
+      return  tv.tv_sec*1000 + tv.tv_usec * 1e-3;
+    }
 
 Status SessionBundlePredict(const RunOptions& run_options,
                             const MetaGraphDef& meta_graph_def,

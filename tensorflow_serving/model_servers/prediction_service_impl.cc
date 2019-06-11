@@ -20,6 +20,7 @@ limitations under the License.
 #include "tensorflow_serving/servables/tensorflow/get_model_metadata_impl.h"
 #include "tensorflow_serving/servables/tensorflow/multi_inference_helper.h"
 #include "tensorflow_serving/servables/tensorflow/regression_service.h"
+#include <sys/time.h>
 
 namespace tensorflow {
 namespace serving {
@@ -31,6 +32,11 @@ int DeadlineToTimeoutMillis(const gpr_timespec deadline) {
       gpr_time_sub(gpr_convert_clock_type(deadline, GPR_CLOCK_MONOTONIC),
                    gpr_now(GPR_CLOCK_MONOTONIC)));
 }
+double elapsed () {
+	    struct timeval tv;
+		gettimeofday (&tv, NULL);
+		return  tv.tv_sec*1000 + tv.tv_usec * 1e-3;
+}
 
 }  // namespace
 
@@ -40,12 +46,17 @@ int DeadlineToTimeoutMillis(const gpr_timespec deadline) {
   tensorflow::RunOptions run_options = tensorflow::RunOptions();
   run_options.set_timeout_in_ms(
       DeadlineToTimeoutMillis(context->raw_deadline()));
-
+  
+  double start_time = elapsed();
   const ::grpc::Status status =
       ToGRPCStatus(predictor_->Predict(run_options, core_, *request, response));
-
+  double end_time = elapsed();
   if (!status.ok()) {
-    VLOG(1) << "Predict failed: " << status.error_message();
+    //VLOG(1) << "Predict failed: " << status.error_message();
+  	LOG(INFO) << "serverrt1 " << (end_time-start_time) << " failed " ;
+    LOG(INFO) << "Predict failed: " << status.error_message();
+  }else{
+    LOG(INFO) << "serverrt1 " << (end_time-start_time) << " succeed ";
   }
   return status;
 }
